@@ -1,14 +1,14 @@
 .chat {
   display: flex;
   flex-direction: column;
-  flex: 0.65;
+  flex: 1;
 }
 
 .chat__header {
   padding: 20px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid lightgray ;
+  border-bottom: 1px solid lightgray;
 }
 
 .chat__headerInfo {
@@ -24,4 +24,36 @@
 
 .chat__headerInfo > p {
   color: grey;
+}
+
+.chat__body {
+  flex: 1;
+  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+  background-repeat: repeat;
+  padding: 30px;
+  overflow: auto;
+}
+
+.chat__message {
+  /* it is relative because the children will be positioned based on this */
+  position: relative;
+  font-size: 16px;
+  padding: 10px;
+  /* makes the container fit the content of message */
+  width: fit-content;
+  border-radius: 10px;
+  background-color:#ffffff;
+  margin-bottom: 30px;
+}
+
+.chat__timestamp {
+  margin-left: 10px;
+  font-size: xx-small;
+}
+
+.chat__name {
+  position: absolute;
+  top: -15px;
+  font-weight: 800;
+  font-size: xx-small;
 }

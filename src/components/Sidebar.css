@@ -3,6 +3,7 @@
   /* This needs a flex-direction:column; because it is a vertical sidebar */
   flex-direction: column;
   flex: 0.35;
+  justify-content: stretch;
   max-width: 450px;
 }
 
