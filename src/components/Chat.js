@@ -7,8 +7,12 @@ import SearchOutlined from "@material-ui/icons/SearchOutlined";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import MicIcon from "@material-ui/icons/Mic";
 
+function Chat({ messages }) {
 
-function Chat() {
+  const sendMessage= (e) => {
+    
+  }
+
   return (
     <div className="chat">
       <div className="chat__header">
@@ -33,27 +37,22 @@ function Chat() {
       </div>
 
       <div className="chat__body">
-        <p className="chat__message">
-          <span className="chat__name">Dineth</span>
-          This is a message
-          <span className="chat__timestamp">
-            {new Date().toUTCString()}
-          </span>
-        </p>
-        <p className="chat__message chat__receiver">
-          <span className="chat__name">Dineth</span>
-          This is a message
-          <span className="chat__timestamp">
-            {new Date().toUTCString()}
-          </span>
-        </p>
-        
+        {messages.map((message) => (
+          <p
+            className={`chat__message ${message.received && "chat__receiver"}`}
+          >
+            <span className="chat__name">{message.name}</span>
+            {message.message}
+            <span className="chat__timestamp">{message.timestamp}</span>
+          </p>
+        ))}
       </div>
+
       <div className="chat__footer">
         <InsertEmoticonIcon />
         <form action="">
-          <input type="text" placeholder="Type a message"/>
-          <button type="submit" >Send a message</button>
+          <input type="text" placeholder="Type a message" />
+          <button onClick={sendMessage} type="submit">Send a message</button>
         </form>
         <MicIcon />
       </div>
