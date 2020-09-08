@@ -1,5 +1,5 @@
 export const initialState = {
-  user: null,
+  user:null,
 };
 
 // all possible actions, which is exported so it can be used

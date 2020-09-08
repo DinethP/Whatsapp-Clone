@@ -6,12 +6,16 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import SearchOutlined from "@material-ui/icons/SearchOutlined";
 import SidebarChat from "./SidebarChat";
+import { useStateValue } from "../StateProvider";
+
 
 function Sidebar() {
+  const [{user}, dispatch] = useStateValue()
+
   return (
     <div className="sidebar">
       <div className="sidebar__header">
-        <Avatar />
+        <Avatar src={user?.photoURL}/>
         <div className="sidebar__headerRight">
           {/* IconButton makes the icon a clickable button */}
           <IconButton>
@@ -34,9 +38,9 @@ function Sidebar() {
       </div>
 
       <div className="sidebar__chats">
-        <SidebarChat />
-        <SidebarChat />
-        <SidebarChat />
+        <SidebarChat name="Main Chat" lastMessage="How are you doing? 😃"/>
+        <SidebarChat name="Dev Room" lastMessage="ReactJs is very powerful 💯"/>
+        <SidebarChat name="Meetup" lastMessage="Friday night drinks anyone? 🍻🎉"/>
 
       </div>
     </div>

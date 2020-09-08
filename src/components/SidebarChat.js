@@ -1,17 +1,22 @@
-import React from 'react'
-import './SidebarChat.css'
-import { Avatar } from '@material-ui/core'
+import React, { useEffect, useState } from "react";
+import "./SidebarChat.css";
+import { Avatar } from "@material-ui/core";
 
-function SidebarChat() {
+function SidebarChat({ name, lastMessage }) {
+  const [seed, setSeed] = useState('')
+
+  useEffect(() => {
+    setSeed(Math.floor(Math.random() * 5000))
+  }, [])
   return (
     <div className="sidebarChat">
-      <Avatar />
+      <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`}/>
       <div className="sidebarChat__info">
-        <h2>Room name</h2>
-        <p>Thus us the last message</p>
+        <h2>{name}</h2>
+        <p>{lastMessage}</p>
       </div>
     </div>
-  )
+  );
 }
 
-export default SidebarChat
+export default SidebarChat;
