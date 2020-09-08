@@ -9,11 +9,43 @@ import MicIcon from "@material-ui/icons/Mic";
 // Importing local axios.js file
 import axios from "../axios";
 import { useStateValue } from "../StateProvider";
+import { useParams } from "react-router";
+import Pusher from "pusher-js";
 
-function Chat({ messages }) {
+
+function Chat() {
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [{ user }, dispatch] = useStateValue();
   const [seed, setSeed] = useState('')
+  const { roomId } = useParams()
+
+  // load all saved messages and rooms
+  useEffect(() => {
+    axios.get("/api/v1/messages/sync").then((response) => {
+      setMessages(response.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    const pusher = new Pusher("4d31dc22869a431df2fb", {
+      cluster: "ap2",
+    });
+
+    const msgChannel = pusher.subscribe("messages");
+    msgChannel.bind("inserted", (newMessage) => {
+      setMessages([...messages, newMessage]);
+    });
+
+    // cleanup function
+    // prevent multiple listeners from being initialise. Always only one listener will be present
+    return () => {
+      msgChannel.unbind_all();
+      msgChannel.unsubscribe();
+    };
+    // specify messages as a dependency as the useEffect depends on the messages useState array
+    // Code in useEffect runs everytime the messages array is modified
+  }, [messages]);
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 5000))

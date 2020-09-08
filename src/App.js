@@ -11,13 +11,18 @@ import { useStateValue } from "./StateProvider";
 
 function App() {
   const [messages, setMessages] = useState([]);
-  const [{user}, dispatch] = useStateValue()
+  const [rooms, setRooms] = useState([])
+  const [{ user }, dispatch] = useStateValue();
 
-  // load all saved messages
+  // load all saved messages and rooms
   useEffect(() => {
     axios.get("/api/v1/messages/sync").then((response) => {
       setMessages(response.data);
     });
+
+    axios.get("/api/v1/rooms/sync").then((response) => {
+      setRooms(response.data)
+    })
   }, []);
 
   useEffect(() => {
@@ -25,22 +30,43 @@ function App() {
       cluster: "ap2",
     });
 
-    const channel = pusher.subscribe("messages");
-    channel.bind("inserted", (newMessage) => {
+    const msgChannel = pusher.subscribe("messages");
+    msgChannel.bind("inserted", (newMessage) => {
       setMessages([...messages, newMessage]);
     });
 
     // cleanup function
     // prevent multiple listeners from being initialise. Always only one listener will be present
     return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
+      msgChannel.unbind_all();
+      msgChannel.unsubscribe();
     };
     // specify messages as a dependency as the useEffect depends on the messages useState array
     // Code in useEffect runs everytime the messages array is modified
   }, [messages]);
 
-  console.log(messages);
+  useEffect(() => {
+    const pusher = new Pusher("4d31dc22869a431df2fb", {
+      cluster: "ap2",
+    });
+
+    const roomChannel = pusher.subscribe("rooms");
+    roomChannel.bind("inserted", (newRoom) => {
+      setRooms([...rooms, newRoom]);
+    });
+
+    // cleanup function
+    // prevent multiple listeners from being initialise. Always only one listener will be present
+    return () => {
+      roomChannel.unbind_all();
+      roomChannel.unsubscribe();
+    };
+    // specify messages as a dependency as the useEffect depends on the messages useState array
+    // Code in useEffect runs everytime the messages array is modified
+  }, [rooms]);
+
+  console.log(rooms);
+  
 
   return (
     <div className="app">
@@ -48,14 +74,15 @@ function App() {
         <Login />
       ) : (
         <div className="app__body">
-          <Sidebar />
           <Router>
+          {/* All components that must be shown irrespective of route path should be outside <Switch> but inside <Router> */}
+          <Sidebar rooms={rooms} />
             <Switch>
-              <Route path="/app">
-                <Chat messages={messages} />
+              <Route path="/rooms/:roomId">
+                <Chat />
               </Route>
               <Route path="/">
-                <Chat messages={messages}/>
+                <Chat />
               </Route>
             </Switch>
           </Router>
