@@ -1,5 +1,5 @@
 export const initialState = {
-  user:null,
+  user: null,
 };
 
 // all possible actions, which is exported so it can be used
@@ -21,4 +21,4 @@ const reducer = (state, action) => {
   }
 };
 
-export default reducer
+export default reducer;

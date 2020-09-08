@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import { Avatar, IconButton } from "@material-ui/core";
 import ChatIcon from "@material-ui/icons/Chat";
@@ -7,9 +7,13 @@ import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import SearchOutlined from "@material-ui/icons/SearchOutlined";
 import SidebarChat from "./SidebarChat";
 import { useStateValue } from "../StateProvider";
+// Importing local axios.js file
+import axios from "../axios";
 
 function Sidebar({ rooms }) {
   const [{ user }, dispatch] = useStateValue();
+
+
 
   return (
     <div className="sidebar">
@@ -46,7 +50,6 @@ function Sidebar({ rooms }) {
             key={room._id}
             id={room._id}
             name={room.name}
-            lastMessage="How are you doing? 😃"
           />
         ))}
       </div>

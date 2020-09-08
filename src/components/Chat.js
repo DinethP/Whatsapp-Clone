@@ -12,20 +12,20 @@ import { useStateValue } from "../StateProvider";
 import { useParams } from "react-router";
 import Pusher from "pusher-js";
 
-
 function Chat() {
   const [messages, setMessages] = useState([]);
+  const [room, setRoom] = useState([]);
   const [input, setInput] = useState("");
   const [{ user }, dispatch] = useStateValue();
-  const [seed, setSeed] = useState('')
-  const { roomId } = useParams()
+  const [seed, setSeed] = useState("");
+  const { roomId } = useParams();
 
-  // load all saved messages and rooms
+  // load all saved messages for specificroomId
   useEffect(() => {
-    axios.get("/api/v1/messages/sync").then((response) => {
+    axios.get(`/api/v1/messages/sync/${roomId}`).then((response) => {
       setMessages(response.data);
     });
-  }, []);
+  }, [roomId]);
 
   useEffect(() => {
     const pusher = new Pusher("4d31dc22869a431df2fb", {
@@ -47,35 +47,43 @@ function Chat() {
     // Code in useEffect runs everytime the messages array is modified
   }, [messages]);
 
+  // fetch room details
   useEffect(() => {
-    setSeed(Math.floor(Math.random() * 5000))
-  }, [])
+    if (roomId) {
+      axios.get(`/api/v1/rooms/${roomId}`).then((response) => {
+        setRoom(response.data);
+      });
+    }
+  }, [roomId]);
+
+  // The avatar is going to change everytime the roomId param is changed in the url
+  useEffect(() => {
+    setSeed(Math.floor(Math.random() * 5000));
+  }, [roomId]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (input){
+    if (input) {
       await axios.post("/api/v1/messages/new", {
         message: input,
         name: user.displayName,
         timestamp: new Date().toUTCString(),
         received: true,
+        roomId: roomId,
       });
       setInput("");
     }
   };
 
-
   return (
     <div className="chat">
       <div className="chat__header">
-        <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`}/>
+        <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
 
         <div className="chat__headerInfo">
-          <h3>Main Chat</h3>
+          <h3>{room.name}</h3>
           {/* Last seen is the timestamp of last message */}
-          <p>
-            last seen {" "}
-            {messages[messages.length -1]?.timestamp}</p>
+          <p>last seen {messages[messages.length - 1]?.timestamp}</p>
         </div>
 
         <div className="chat__headerRight">
