@@ -47,9 +47,10 @@ function Chat({ messages }) {
       </div>
 
       <div className="chat__body">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <p
             className={`chat__message ${message.received && "chat__receiver"}`}
+            key={index}
           >
             <span className="chat__name">{message.name}</span>
             {message.message}
@@ -62,6 +63,7 @@ function Chat({ messages }) {
         <InsertEmoticonIcon />
         <form action="">
           <input
+            // we need the value as input because we can write an empty string after pressing enter
             value={input}
             onChange={(e) => setInput(e.target.value)}
             type="text"
