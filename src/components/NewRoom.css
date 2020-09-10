@@ -1,0 +1,22 @@
+.newRoom {
+  display: flex;
+  padding: 20px;
+  justify-content: center;
+  align-items: center;
+  /* Hover will show pointer */
+  cursor: pointer;
+  border-bottom: 1px solid #f6f6f6;
+}
+
+.newRoom:hover {
+  background-color: #ebebeb;
+}
+
+.newRoom > .MuiSvgIcon-root {
+  margin: 10px;
+  color: grey;
+}
+
+.newRoom > h2 {
+  color: grey;
+}

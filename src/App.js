@@ -13,42 +13,26 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [rooms, setRooms] = useState([])
   const [{ user }, dispatch] = useStateValue();
+  const pusher = new Pusher("4d31dc22869a431df2fb", {
+    cluster: "ap2",
+  });
 
-  // load all saved messages and rooms
+  // load all rooms
   useEffect(() => {
-    axios.get("/api/v1/messages/sync").then((response) => {
-      setMessages(response.data);
-    });
-
     axios.get("/api/v1/rooms/sync").then((response) => {
       setRooms(response.data)
     })
   }, []);
 
+  // This function is use by NewRoom.js to update rooms when a new room is made
+  const updateRooms = () => {
+    axios.get("/api/v1/rooms/sync").then((response) => {
+      setRooms(response.data)
+    })
+  }
+
+  // listen to new rooms created
   useEffect(() => {
-    const pusher = new Pusher("4d31dc22869a431df2fb", {
-      cluster: "ap2",
-    });
-
-    const msgChannel = pusher.subscribe("messages");
-    msgChannel.bind("inserted", (newMessage) => {
-      setMessages([...messages, newMessage]);
-    });
-
-    // cleanup function
-    // prevent multiple listeners from being initialise. Always only one listener will be present
-    return () => {
-      msgChannel.unbind_all();
-      msgChannel.unsubscribe();
-    };
-    // specify messages as a dependency as the useEffect depends on the messages useState array
-    // Code in useEffect runs everytime the messages array is modified
-  }, [messages]);
-
-  useEffect(() => {
-    const pusher = new Pusher("4d31dc22869a431df2fb", {
-      cluster: "ap2",
-    });
 
     const roomChannel = pusher.subscribe("rooms");
     roomChannel.bind("inserted", (newRoom) => {
@@ -58,14 +42,15 @@ function App() {
     // cleanup function
     // prevent multiple listeners from being initialise. Always only one listener will be present
     return () => {
-      roomChannel.unbind_all();
-      roomChannel.unsubscribe();
+      roomChannel.unbind("inserted");
+      roomChannel.unsubscribe("rooms");
+      roomChannel.disconnect();
     };
     // specify messages as a dependency as the useEffect depends on the messages useState array
     // Code in useEffect runs everytime the messages array is modified
   }, [rooms]);
 
-  console.log(rooms);
+  // console.log(rooms);
   
 
   return (
@@ -76,13 +61,13 @@ function App() {
         <div className="app__body">
           <Router>
           {/* All components that must be shown irrespective of route path should be outside <Switch> but inside <Router> */}
-          <Sidebar rooms={rooms} />
+          <Sidebar rooms={rooms} updateRooms={updateRooms} />
             <Switch>
               <Route path="/rooms/:roomId">
                 <Chat />
               </Route>
               <Route path="/">
-                <Chat />
+                <Chat chatUnselected/>
               </Route>
             </Switch>
           </Router>

@@ -6,14 +6,11 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import SearchOutlined from "@material-ui/icons/SearchOutlined";
 import SidebarChat from "./SidebarChat";
+import NewRoom from "./NewRoom";
 import { useStateValue } from "../StateProvider";
-// Importing local axios.js file
-import axios from "../axios";
 
-function Sidebar({ rooms }) {
+function Sidebar({ rooms, updateRooms }) {
   const [{ user }, dispatch] = useStateValue();
-
-
 
   return (
     <div className="sidebar">
@@ -41,16 +38,11 @@ function Sidebar({ rooms }) {
       </div>
 
       <div className="sidebar__chats">
-        {/* This first component reders the "Add new Chat" button */}
-        <SidebarChat addNewChat />
+        <NewRoom updateRooms={updateRooms} />
 
         {rooms.map((room) => (
           // room.id is the _id assigned by MongoDB for each room
-          <SidebarChat
-            key={room._id}
-            id={room._id}
-            name={room.name}
-          />
+          <SidebarChat key={room._id} id={room._id} name={room.name} />
         ))}
       </div>
     </div>

@@ -11,8 +11,9 @@ import axios from "../axios";
 import { useStateValue } from "../StateProvider";
 import { useParams } from "react-router";
 import Pusher from "pusher-js";
+import moment from "moment";
 
-function Chat() {
+function Chat({ chatUnselected }) {
   const [messages, setMessages] = useState([]);
   const [room, setRoom] = useState([]);
   const [input, setInput] = useState("");
@@ -21,6 +22,7 @@ function Chat() {
   const { roomId } = useParams();
 
   // load all saved messages for specificroomId
+  // this useEffect runs when the rooId param is updated
   useEffect(() => {
     axios.get(`/api/v1/messages/sync/${roomId}`).then((response) => {
       setMessages(response.data);
@@ -40,8 +42,9 @@ function Chat() {
     // cleanup function
     // prevent multiple listeners from being initialise. Always only one listener will be present
     return () => {
-      msgChannel.unbind_all();
-      msgChannel.unsubscribe();
+      msgChannel.unbind("inserted");
+      msgChannel.unsubscribe("messages");
+      pusher.disconnect();
     };
     // specify messages as a dependency as the useEffect depends on the messages useState array
     // Code in useEffect runs everytime the messages array is modified
@@ -67,7 +70,6 @@ function Chat() {
       await axios.post("/api/v1/messages/new", {
         message: input,
         name: user.displayName,
-        timestamp: new Date().toUTCString(),
         received: true,
         roomId: roomId,
       });
@@ -75,7 +77,7 @@ function Chat() {
     }
   };
 
-  return (
+  return !chatUnselected ? (
     <div className="chat">
       <div className="chat__header">
         <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
@@ -83,7 +85,10 @@ function Chat() {
         <div className="chat__headerInfo">
           <h3>{room.name}</h3>
           {/* Last seen is the timestamp of last message */}
-          <p>last seen {messages[messages.length - 1]?.timestamp}</p>
+          <p>
+            last seen{" "}
+            {moment(messages[messages.length - 1]?.createdAt).format("llll")}
+          </p>
         </div>
 
         <div className="chat__headerRight">
@@ -100,7 +105,7 @@ function Chat() {
       </div>
 
       <div className="chat__body">
-        {messages.map((message, index) => (
+        {messages?.map((message, index) => (
           <p
             className={`chat__message ${
               message.name === user.displayName && "chat__receiver"
@@ -109,7 +114,9 @@ function Chat() {
           >
             <span className="chat__name">{message.name}</span>
             {message.message}
-            <span className="chat__timestamp">{message.timestamp}</span>
+            <span className="chat__timestamp">
+              {moment(message.createdAt).format("llll")}
+            </span>
           </p>
         ))}
       </div>
@@ -129,6 +136,14 @@ function Chat() {
           </button>
         </form>
         <MicIcon />
+      </div>
+    </div>
+  ) : (
+    <div className="chat">
+      <div className="chat__body">
+        <div className="chat__unselected__container">
+          <h2>Please select a chat</h2>
+        </div>
       </div>
     </div>
   );
