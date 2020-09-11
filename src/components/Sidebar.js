@@ -9,7 +9,7 @@ import SidebarChat from "./SidebarChat";
 import NewRoom from "./NewRoom";
 import { useStateValue } from "../StateProvider";
 
-function Sidebar({ rooms, updateRooms }) {
+function Sidebar({ rooms, updateRooms, lastMessages }) {
   const [{ user }, dispatch] = useStateValue();
 
   return (
@@ -40,10 +40,27 @@ function Sidebar({ rooms, updateRooms }) {
       <div className="sidebar__chats">
         <NewRoom updateRooms={updateRooms} />
 
-        {rooms.map((room) => (
-          // room.id is the _id assigned by MongoDB for each room
-          <SidebarChat key={room._id} id={room._id} name={room.name} />
-        ))}
+        {rooms.map((room) => {
+          // try to see if there is a last message
+          let finalMessage = lastMessages.find(
+            (message) => message.roomId._id == room._id
+          );
+          let message;
+          if (!finalMessage) {
+            message = "No messages yet";
+          } else {
+            message = finalMessage.message;
+          }
+          // room._id is the id from mongoDB for each room
+          return (
+            <SidebarChat
+              key={room._id}
+              id={room._id}
+              name={room.name}
+              lastMessage={message}
+            />
+          );
+        })}
       </div>
     </div>
   );

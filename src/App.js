@@ -10,12 +10,10 @@ import axios from "./axios";
 import { useStateValue } from "./StateProvider";
 
 function App() {
-  const [messages, setMessages] = useState([]);
+  const [lastMessages, setLastMessages] = useState([]);
   const [rooms, setRooms] = useState([])
   const [{ user }, dispatch] = useStateValue();
-  const pusher = new Pusher("4d31dc22869a431df2fb", {
-    cluster: "ap2",
-  });
+
 
   // load all rooms
   useEffect(() => {
@@ -33,6 +31,9 @@ function App() {
 
   // listen to new rooms created
   useEffect(() => {
+    const pusher = new Pusher("4d31dc22869a431df2fb", {
+      cluster: "ap2",
+    });
 
     const roomChannel = pusher.subscribe("rooms");
     roomChannel.bind("inserted", (newRoom) => {
@@ -44,13 +45,24 @@ function App() {
     return () => {
       roomChannel.unbind("inserted");
       roomChannel.unsubscribe("rooms");
-      roomChannel.disconnect();
+      pusher.disconnect();
     };
     // specify messages as a dependency as the useEffect depends on the messages useState array
     // Code in useEffect runs everytime the messages array is modified
   }, [rooms]);
 
-  // console.log(rooms);
+  // To fetch last messages
+  useEffect(() => {
+    axios.get("/api/v1/rooms/last-message").then((response) => {
+      setLastMessages(response.data)
+    })
+  }, [])
+
+  const updateLastMessage = () => {
+    axios.get("/api/v1/rooms/last-message").then((response) => {
+      setLastMessages(response.data)
+    })
+  }
   
 
   return (
@@ -61,10 +73,10 @@ function App() {
         <div className="app__body">
           <Router>
           {/* All components that must be shown irrespective of route path should be outside <Switch> but inside <Router> */}
-          <Sidebar rooms={rooms} updateRooms={updateRooms} />
+          <Sidebar rooms={rooms} updateRooms={updateRooms} lastMessages={lastMessages} />
             <Switch>
               <Route path="/rooms/:roomId">
-                <Chat />
+                <Chat updateLastMessage={updateLastMessage} />
               </Route>
               <Route path="/">
                 <Chat chatUnselected/>

@@ -13,7 +13,7 @@ import { useParams } from "react-router";
 import Pusher from "pusher-js";
 import moment from "moment";
 
-function Chat({ chatUnselected }) {
+function Chat({ chatUnselected, updateLastMessage }) {
   const [messages, setMessages] = useState([]);
   const [room, setRoom] = useState([]);
   const [input, setInput] = useState("");
@@ -74,6 +74,7 @@ function Chat({ chatUnselected }) {
         roomId: roomId,
       });
       setInput("");
+      updateLastMessage()
     }
   };
 

@@ -4,10 +4,8 @@ import { Avatar } from "@material-ui/core";
 import axios from "../axios";
 import { Link } from "react-router-dom";
 
-function SidebarChat({ id, name}) {
+function SidebarChat({ id, name, lastMessage}) {
   const [seed, setSeed] = useState("");
-  const [lastMessage, setLastMessage] = useState([]);
-
   const createChat = async () => {
     const roomName = prompt("Please enter the name of the chat room");
     if (roomName) {
@@ -16,17 +14,6 @@ function SidebarChat({ id, name}) {
       });
     }
   };
-
-  // This is a bit of a hack, not properly done. This function is going to run every second to fetch last message
-  useEffect(() => {
-    const interval = setInterval(() => {
-      axios.get(`/api/v1/rooms/last-message/${id}`).then((response) => {
-        setLastMessage(response.data);
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 5000));
@@ -40,7 +27,7 @@ function SidebarChat({ id, name}) {
         <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
         <div className="sidebarChat__info">
           <h2>{name}</h2>
-          <p>{lastMessage?.message}</p>
+          <p>{lastMessage}</p>
         </div>
       </div>
     </Link>
