@@ -1,4 +1,4 @@
-# my-Zoom
+# Whatsapp-Clone
 
 A Whatsapp client built using MERN stack
 
